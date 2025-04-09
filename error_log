@@ -1,0 +1,6 @@
+[30-Apr-2021 16:18:56 UTC] PHP Fatal error:  Uncaught Error: Object of class CI_DB_mysqli_result could not be converted to string in /home/transdis/dnntextile.transdisys.com/application/controllers/Laporan.php:1080
+Stack trace:
+#0 /home/transdis/dnntextile.transdisys.com/system/core/CodeIgniter.php(532): Laporan->view_status_stok()
+#1 /home/transdis/dnntextile.transdisys.com/index.php(315): require_once('/home/transdis/...')
+#2 {main}
+  thrown in /home/transdis/dnntextile.transdisys.com/application/controllers/Laporan.php on line 1080

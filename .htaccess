@@ -1,0 +1,17 @@
+<ifmodule mod_security2.c>
+
+SecFilterEngine Off
+SecFilterScanPOST Off
+SecRuleEngine Off
+
+</ifmodule>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond $1 !^(index\.php|images|css|ico|js|javascript|library|robots\.txt)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+
+php_value max_input_vars 9999
+</IfModule>
