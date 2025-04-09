@@ -354,6 +354,7 @@ class Pinjaman_model extends CI_Model {
 					'nominal' => $datas['nominal_pinjam'],
 					'nominal_awal' => $datas['sisa_saldo_nom'],
 					'keterangan' => $datas['keterangan'],
+					'jenis_simpan' => $datas['jenis_simpan'],
 					'create_id'     => $_SESSION['teid'],
 				);
 
@@ -401,6 +402,22 @@ class Pinjaman_model extends CI_Model {
 
 	public function getData($datas,$tbl,$id){
 		$sql = "SELECT * FROM ".$tbl." WHERE ".$id." = ".$datas['teid'];
+		$rs  = $this->db->query($sql);
+		$data_menu = json_encode($rs->result_array());
+		return $data_menu;
+	}
+
+	public function getDetailSimpanan($datas){
+		$teid = $datas['teid'];
+		$type_simpan = $datas['type_simpan'];
+
+		$sql = "SELECT SUM(c.credit-c.debet) as saldo
+ 				FROM tbl_jurnal_d c 
+ 				WHERE 1=1 AND c.reff_id = ".$teid."
+ 				AND (CASE WHEN (".$type_simpan." = 1 OR ".$type_simpan." = 2 ) THEN c.ttjid IN (1,3,5)
+ 																		  WHEN ".$type_simpan." = 3 THEN c.ttjid IN (4,5)
+ 																		  ELSE FALSE END) 
+ 				AND c.coaid = (SELECT x.coaid FROM tbl_coa x WHERE x.tcmid = ".$type_simpan.")";
 		$rs  = $this->db->query($sql);
 		$data_menu = json_encode($rs->result_array());
 		return $data_menu;
@@ -521,13 +538,10 @@ class Pinjaman_model extends CI_Model {
 
 	public function list_karyawan_sukarela($addsql="") {
  		
- 		$sql = "SELECT a.teid,a.nik,a.nama_karyawan,SUM(c.credit-c.debet) as saldo
+ 		$sql = "SELECT a.teid,a.nik,a.nama_karyawan
  				FROM tbl_emp a
  				JOIN tbl_role b ON (a.trid = b.trid)
- 				LEFT JOIN tbl_jurnal_d c ON (a.teid = c.reff_id AND c.ttjid IN (4,5) AND c.coaid = (SELECT x.coaid FROM tbl_coa x WHERE x.tcmid = 3))
  				WHERE 1=1 $addsql
- 				GROUP BY a.teid,a.nik,a.nama_karyawan
- 				HAVING SUM(c.credit-c.debet) <> 0
  				ORDER BY a.teid";
 		$data = $this->db->query($sql);
 		return $data;

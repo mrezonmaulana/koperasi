@@ -385,6 +385,7 @@ function kalkulasiPinjaman(arrJson=''){
 function saveData(){
    var data_tpsid = $("input[name='tpsid']").val();
    var data_teid = $("select[name='teid']").val();
+   var jenis_simpan = $("select[name='jenis_simpanan']").val();
    var data_tanggal_pinjam = $("input[name='tgl_mulai']").val();
    var data_nominal_pinjam = backToNormal(document.getElementById('nominal'));
    var sisa_saldo_nom = $("input[name='sisa_saldo_nom']").val();
@@ -438,6 +439,7 @@ function saveData(){
         nominal_pinjam: data_nominal_pinjam,
         keterangan: keterangan,
         sisa_saldo_nom: sisa_saldo_nom,
+        jenis_simpan: jenis_simpan,
       };
       $.post("<?php echo base_url('Pinjaman/savePengambilan')?>",dataSend,function(data){
 
@@ -483,6 +485,23 @@ function saveData(){
 
 }
 
+function cekSaldo(){
+   $("select[name='jenis_simpanan']").trigger('change');
+}
+
+function getSisaSaldo(){
+  var pegawai = $("select[name='teid'] option:selected").val();
+  var jenis_simpan = $("select[name='jenis_simpanan'] option:selected").val();
+  $.post("<?php echo base_url('Pinjaman/detailSimpananAnggota')?>",{teid:pegawai, type_simpan:jenis_simpan},function(data){
+     var resData = JSON.parse(data);
+     var saldoSisa = 0;
+     console.log(resData);
+     if ( resData[0].saldo != "null" && resData[0].saldo != '' && resData[0].saldo > 0 ) saldoSisa = resData[0].saldo; 
+     $("#sisaSaldo").html("Rp. "+formatRupiahNew(saldoSisa,'Rp. '));
+     $("input[name='sisa_saldo_nom']").val(saldoSisa);
+  });
+}
+
 function showSaldo(){
    var saldo = $("select[name='teid'] option:selected").attr('data-saldo');
    $("#sisaSaldo").html("Rp. "+formatRupiahNew(saldo,'Rp. '));
@@ -506,8 +525,8 @@ function showSaldo(){
           <input type="hidden" name="sisa_saldo_nom" id="sisa_saldo_nom" value="0"/>
             <tr>
               <td width="15%">Anggota</td>
-              <td>
-                <select name="teid" class="custom-select custom-select-sm rounded-0" id="exampleSelectRounded0" onchange="showSaldo();">
+              <td colspan="2">
+                <select name="teid" class="custom-select custom-select-sm rounded-0" id="exampleSelectRounded0" onchange="cekSaldo();">
                 <option><--- Pilih Anggota --></option>
                 <?php 
                   foreach( $list_karyawan->result_array() as $i ){
@@ -530,6 +549,13 @@ function showSaldo(){
             </tr>
             <tr>
               <td>Sisa Simpanan</td>
+              <td width="200">
+                <select name="jenis_simpanan" class="custom-select custom-select-sm rounded-0" id="exampleSelectRounded0" onchange="getSisaSaldo();">
+                <option value='1'>Wajib</option>  
+                <option value='2'>Pokok</option>  
+                <option value='3'>Sukarela</option>  
+                </select>
+              </td>
               <td><font id='sisaSaldo'></font></td>
               <td width="15%">Nominal</td>
               <td>

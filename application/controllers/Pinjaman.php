@@ -343,4 +343,9 @@ class Pinjaman extends CI_Controller {
 		die($res);	
 	}
 
+	public function detailSimpananAnggota(){
+		$res = $this->pinjaman_model->getDetailSimpanan($_POST);
+		die($res);
+	}
+
 }
